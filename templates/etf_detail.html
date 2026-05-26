@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ symbol }} Holdings – ETF Signal Dashboard{% endblock %}
+
+{% block content %}
+<div class="detail-header">
+  <a href="/" class="back-link">← Back to Dashboard</a>
+  <div class="detail-title-row">
+    <div>
+      <h1 class="detail-ticker">
+        {{ symbol }}
+        <span id="detail-mock-badge" class="mock-mode-badge" style="display:none">⚠ Simulated Data</span>
+      </h1>
+      <p class="detail-name" id="detail-etf-name">Loading…</p>
+      <p class="detail-sector" id="detail-etf-sector"></p>
+    </div>
+    <div class="detail-signal-box" id="detail-signal-box">
+      <div class="dsb-label">ETF Signal</div>
+      <div class="dsb-badge" id="detail-badge">—</div>
+      <div class="dsb-score" id="detail-score">Score: —</div>
+      <div class="dsb-price" id="detail-price">—</div>
+    </div>
+  </div>
+  <p class="detail-desc" id="detail-etf-desc">Loading description…</p>
+  <div id="detail-mock-note" class="mock-info-box" style="display:none">
+    ⚠ <strong>Simulated Data Mode</strong> — Yahoo Finance is currently unreachable from this
+    server. All prices, indicator values, and signals below are generated from a
+    deterministic model seeded by the selected date. They do <em>not</em> reflect real
+    market conditions. Connect to the internet and click <strong>Refresh</strong> to load
+    live data.
+  </div>
+</div>
+
+<!-- ETF Indicator Breakdown -->
+<div class="section-title">ETF Indicator Breakdown</div>
+<div class="indicator-breakdown" id="etf-ind-breakdown">
+  <div class="loading-inline">Loading indicators…</div>
+</div>
+
+<!-- Controls -->
+<div class="controls-bar">
+  <div class="controls-left">
+    <button class="btn btn-primary" id="btn-prev-d">◄ Prev Day</button>
+    <span class="date-display" id="detail-date">—</span>
+    <button class="btn btn-primary" id="btn-next-d" disabled>Next Day ►</button>
+  </div>
+  <div class="controls-right">
+    <button class="btn btn-refresh" id="btn-refresh-d">↻ Refresh</button>
+  </div>
+</div>
+
+<!-- Holdings -->
+<div class="section-title">Top 10 Holdings – Buy/Sell Signals</div>
+
+<div id="holdings-loading" class="loading-inline">Fetching holdings data…</div>
+<div id="holdings-error" class="error-banner" style="display:none"></div>
+
+<div class="holdings-grid" id="holdings-grid"></div>
+
+<!-- Holding Tooltip -->
+<div id="holding-tooltip" class="etf-tooltip" style="display:none">
+  <div class="tt-header">
+    <span class="tt-ticker" id="ht-ticker"></span>
+    <span class="tt-badge" id="ht-badge"></span>
+  </div>
+  <div class="tt-name" id="ht-name"></div>
+  <div class="tt-divider"></div>
+  <div class="tt-section-title">Bullish Signals</div>
+  <ul class="tt-list bullish" id="ht-bullish"></ul>
+  <div class="tt-section-title">Bearish Signals</div>
+  <ul class="tt-list bearish" id="ht-bearish"></ul>
+  <div class="tt-section-title">Neutral</div>
+  <ul class="tt-list neutral" id="ht-neutral"></ul>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const SYMBOL   = {{ symbol | tojson }};
+  const ETF_INFO = {{ etf_info | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/detail.js') }}"></script>
+{% endblock %}
