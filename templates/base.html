@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ETF Signal Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  {% if is_demo_mode %}
+  <div class="demo-banner">
+    <span class="demo-banner-icon">⚠</span>
+    <strong>Demo Mode — Simulated Data</strong>
+    &nbsp;|&nbsp; Yahoo Finance is unreachable. All prices and signals are generated from a
+    deterministic model seeded by date. Deploy with outbound network access to receive live
+    market data.
+    <a class="demo-banner-link" href="https://finance.yahoo.com" target="_blank" rel="noopener">
+      Learn more ↗
+    </a>
+  </div>
+  {% endif %}
+  <nav class="topnav">
+    <div class="nav-brand">
+      <span class="nav-icon">📊</span>
+      <a href="/" class="nav-title">ETF Signal Dashboard</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-subtitle">Technical Analysis &amp; Market Signals</span>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>Data sourced from Yahoo Finance &middot; Signals are for informational purposes only &middot; Not financial advice</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
