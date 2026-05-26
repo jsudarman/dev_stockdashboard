@@ -145,7 +145,7 @@ function renderVIX(vix, isMock) {
 }
 
 // ── Fetch & Render ─────────────────────────────────────────────────────────────
-f async function fetchSignals(date, refresh=false) {
+async function fetchSignals(date, refresh=false) {
   showLoading(true);
   hideError();
   try {
