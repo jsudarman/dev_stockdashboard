@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Top Performing Stocks by ETF{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Top 5 Stocks by ETF</h1>
+    <p class="subtitle">Strongest 5-day price performers from each ETF's holdings — with signal details</p>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btn-prev">&#9664; Prev 5 Days</button>
+    <span class="week-label" id="week-label">Loading…</span>
+    <button class="btn btn-accent" id="btn-refresh">&#8635; Refresh</button>
+  </div>
+</div>
+
+<div class="legend">
+  <span class="leg strong-buy">&#9679; Strong Buy</span>
+  <span class="leg buy">&#9679; Buy</span>
+  <span class="leg hold">&#9679; Hold</span>
+  <span class="leg sell">&#9679; Sell</span>
+  <span class="leg strong-sell">&#9679; Strong Sell</span>
+</div>
+
+<div id="mock-badge" class="mock-badge" style="display:none">&#9888; Simulated Data</div>
+
+<div id="loader" class="loader">
+  <div class="spinner"></div>
+  <p>Analyzing top stocks…</p>
+</div>
+
+<div id="etf-sections"></div>
+
+<!-- Detail panel -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" id="detail-close">&times;</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ETF_META = {{ etfs | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/top_stocks.js') }}"></script>
+{% endblock %}

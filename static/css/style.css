@@ -16,6 +16,9 @@ a{color:var(--accent);text-decoration:none}
 /* Nav */
 .topnav{display:flex;align-items:center;justify-content:space-between;padding:.65rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .nav-brand{font-size:1.1rem;font-weight:700;color:var(--text)}
+.nav-links{display:flex;gap:1.2rem}
+.nav-link{font-size:.85rem;font-weight:600;color:var(--muted);padding:.3rem .6rem;border-radius:6px;transition:.15s}
+.nav-link:hover{color:var(--text);background:var(--bg3)}
 .nav-sub{font-size:.8rem;color:var(--muted)}
 
 /* Main */
@@ -109,14 +112,27 @@ a{color:var(--accent);text-decoration:none}
 .dt-ind-name{font-size:.82rem;font-weight:600;margin-bottom:.15rem}
 .dt-ind-reason{font-size:.78rem;color:var(--muted);line-height:1.4}
 
+/* Top Stocks sections */
+.ts-section{margin-bottom:2rem}
+.ts-header{display:flex;align-items:center;gap:.75rem;padding:.6rem .8rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.75rem;border-left:4px solid transparent}
+.ts-etf-sym{font-size:1.1rem;font-weight:800;letter-spacing:.03em}
+.ts-etf-name{font-size:.85rem;color:var(--muted);flex:1}
+.ts-etf-sector{font-size:.75rem;color:var(--accent);background:var(--bg);padding:.2rem .5rem;border-radius:4px}
+.ts-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem}
+.ts-card{position:relative}
+.ts-rank{position:absolute;top:.5rem;right:.5rem;font-size:.65rem;font-weight:800;color:var(--dim);background:var(--bg);padding:.1rem .35rem;border-radius:3px}
+
 /* Footer */
 .footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--dim);border-top:1px solid var(--border);margin-top:3rem}
 
 /* Responsive */
+@media(max-width:1200px){.ts-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.ts-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){
   .page-header{flex-direction:column}
   .controls{flex-wrap:wrap}
   .grid{grid-template-columns:1fr 1fr}
+  .ts-grid{grid-template-columns:1fr 1fr}
   .detail-panel{width:100vw}
 }
-@media(max-width:400px){.grid{grid-template-columns:1fr}}
+@media(max-width:400px){.grid{grid-template-columns:1fr}.ts-grid{grid-template-columns:1fr}}

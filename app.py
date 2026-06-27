@@ -6,6 +6,7 @@ from src.config import SECTOR_ETFS, ETF_SYMBOLS
 from src.data_provider import DataProvider
 from src.indicators import compute_indicators, last_n_trading_days_ohlcv
 from src.signals import calculate_signal
+from src.holdings import ETF_HOLDINGS
 from src import database as db
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -48,9 +49,37 @@ def _analyze(symbol: str, end_date: str, force: bool = False) -> dict:
     return result
 
 
+def _analyze_stock(symbol: str, end_date: str, force: bool = False) -> dict:
+    cache_key = f"stock_{symbol}"
+    if not force:
+        cached = db.get_signal(end_date, cache_key)
+        if cached:
+            return cached
+
+    df = provider.fetch_daily(symbol, end_date)
+    indicators = compute_indicators(df)
+    period_data = last_n_trading_days_ohlcv(df, end_date, n=5)
+    signal = calculate_signal(indicators, period_data)
+
+    result = {
+        "symbol": symbol,
+        **indicators,
+        "weekly": period_data,
+        "signal": signal,
+    }
+
+    db.save_signal(end_date, cache_key, result)
+    return result
+
+
 @app.route("/")
 def index():
     return render_template("index.html", etfs=SECTOR_ETFS)
+
+
+@app.route("/top-stocks")
+def top_stocks():
+    return render_template("top_stocks.html", etfs=SECTOR_ETFS)
 
 
 @app.route("/api/signals")
@@ -70,6 +99,43 @@ def api_signals():
         "end_date": end,
         "week_label": _period_label(end),
         "signals": results,
+        "is_mock": not provider.is_live(),
+    })
+
+
+@app.route("/api/top-stocks")
+def api_top_stocks():
+    end = request.args.get("end_date") or _end_date()
+    force = request.args.get("refresh", "false").lower() == "true"
+    etf_filter = request.args.get("etf")
+
+    etf_list = [etf_filter] if etf_filter and etf_filter in ETF_HOLDINGS else ETF_SYMBOLS
+    result = {}
+
+    for etf in etf_list:
+        holdings = ETF_HOLDINGS.get(etf, [])
+        stocks = []
+        for ticker in holdings:
+            try:
+                stock = _analyze_stock(ticker, end, force)
+                pct = stock.get("signal", {}).get("weekly_change_pct")
+                stocks.append(stock)
+            except Exception as e:
+                logging.error(f"Error analyzing {ticker}: {e}")
+
+        stocks.sort(key=lambda s: s.get("signal", {}).get("weekly_change_pct") or -999, reverse=True)
+        result[etf] = {
+            "etf_symbol": etf,
+            "etf_name": SECTOR_ETFS.get(etf, {}).get("name", etf),
+            "etf_sector": SECTOR_ETFS.get(etf, {}).get("sector", ""),
+            "etf_color": SECTOR_ETFS.get(etf, {}).get("color", "#58a6ff"),
+            "top_stocks": stocks[:5],
+        }
+
+    return jsonify({
+        "end_date": end,
+        "week_label": _period_label(end),
+        "etfs": result,
         "is_mock": not provider.is_live(),
     })
 
