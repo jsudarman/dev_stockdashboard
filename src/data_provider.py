@@ -54,11 +54,12 @@ class DataProvider:
         if self._live is not None:
             return self._live
         try:
-            import urllib.request
-            urllib.request.urlopen("https://finance.yahoo.com", timeout=4)
-            self._live = True
+            import yfinance as yf
+            df = yf.Ticker("SPY").history(period="5d", interval="1d")
+            self._live = not df.empty
         except Exception:
             self._live = False
+        if not self._live:
             logger.warning("Yahoo Finance unreachable — using simulated data")
         return self._live
 
