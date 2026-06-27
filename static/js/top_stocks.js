@@ -33,27 +33,38 @@ function scoreColor(score) {
 async function fetchTopStocks(endDate, refresh = false) {
   loader.classList.remove("hidden");
   sections.innerHTML = "";
-
-  const params = new URLSearchParams();
-  if (endDate) params.set("end_date", endDate);
-  if (refresh) params.set("refresh", "true");
-
-  const res = await fetch("/api/top-stocks?" + params);
-  if (!res.ok) throw new Error("HTTP " + res.status);
-  const json = await res.json();
-
-  currentEndDate = json.end_date;
-  allData = json.etfs;
-
-  weekLabel.textContent = json.week_label;
-  mockBadge.style.display = json.is_mock ? "inline-flex" : "none";
+  allData = {};
 
   const etfOrder = Object.keys(ETF_META);
-  etfOrder.forEach(etfSym => {
-    const etf = allData[etfSym];
-    if (!etf || !etf.top_stocks.length) return;
-    renderEtfSection(etf);
-  });
+  let headerSet = false;
+
+  for (const etfSym of etfOrder) {
+    const params = new URLSearchParams();
+    params.set("etf", etfSym);
+    if (endDate) params.set("end_date", endDate);
+    if (refresh) params.set("refresh", "true");
+
+    try {
+      const res = await fetch("/api/top-stocks?" + params);
+      if (!res.ok) continue;
+      const json = await res.json();
+
+      if (!headerSet) {
+        currentEndDate = json.end_date;
+        weekLabel.textContent = json.week_label;
+        mockBadge.style.display = json.is_mock ? "inline-flex" : "none";
+        loader.classList.add("hidden");
+        headerSet = true;
+      }
+
+      if (json.top_stocks && json.top_stocks.length) {
+        allData[etfSym] = json;
+        renderEtfSection(json);
+      }
+    } catch (e) {
+      console.error(`Failed to load ${etfSym}:`, e);
+    }
+  }
 
   loader.classList.add("hidden");
 }

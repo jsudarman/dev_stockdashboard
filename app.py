@@ -1,4 +1,5 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request
 
@@ -107,35 +108,33 @@ def api_signals():
 def api_top_stocks():
     end = request.args.get("end_date") or _end_date()
     force = request.args.get("refresh", "false").lower() == "true"
-    etf_filter = request.args.get("etf")
+    etf = request.args.get("etf")
 
-    etf_list = [etf_filter] if etf_filter and etf_filter in ETF_HOLDINGS else ETF_SYMBOLS
-    result = {}
+    if not etf or etf not in ETF_HOLDINGS:
+        return jsonify({"error": "etf parameter required"}), 400
 
-    for etf in etf_list:
-        holdings = ETF_HOLDINGS.get(etf, [])
-        stocks = []
-        for ticker in holdings:
+    holdings = ETF_HOLDINGS.get(etf, [])
+    stocks = []
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = {executor.submit(_analyze_stock, t, end, force): t for t in holdings}
+        for future in as_completed(futures):
+            ticker = futures[future]
             try:
-                stock = _analyze_stock(ticker, end, force)
-                pct = stock.get("signal", {}).get("weekly_change_pct")
-                stocks.append(stock)
+                stocks.append(future.result())
             except Exception as e:
                 logging.error(f"Error analyzing {ticker}: {e}")
 
-        stocks.sort(key=lambda s: s.get("signal", {}).get("weekly_change_pct") or -999, reverse=True)
-        result[etf] = {
-            "etf_symbol": etf,
-            "etf_name": SECTOR_ETFS.get(etf, {}).get("name", etf),
-            "etf_sector": SECTOR_ETFS.get(etf, {}).get("sector", ""),
-            "etf_color": SECTOR_ETFS.get(etf, {}).get("color", "#58a6ff"),
-            "top_stocks": stocks[:5],
-        }
+    stocks.sort(key=lambda s: s.get("signal", {}).get("weekly_change_pct") or -999, reverse=True)
 
     return jsonify({
         "end_date": end,
         "week_label": _period_label(end),
-        "etfs": result,
+        "etf_symbol": etf,
+        "etf_name": SECTOR_ETFS.get(etf, {}).get("name", etf),
+        "etf_sector": SECTOR_ETFS.get(etf, {}).get("sector", ""),
+        "etf_color": SECTOR_ETFS.get(etf, {}).get("color", "#58a6ff"),
+        "top_stocks": stocks[:5],
         "is_mock": not provider.is_live(),
     })
 
