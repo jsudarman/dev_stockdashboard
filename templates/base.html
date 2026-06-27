@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Sector ETF Signals{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  {% if is_demo_mode %}
+  <div class="demo-banner">
+    <strong>Demo Mode</strong> — Yahoo Finance unreachable. Showing simulated data seeded by date.
+  </div>
+  {% endif %}
+
+  <nav class="topnav">
+    <a href="/" class="nav-brand">Sector ETF Signals</a>
+    <span class="nav-sub">Previous-Week Buy / Sell Signals</span>
+  </nav>
+
+  <main class="main">{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    Signals are for informational purposes only &middot; Not financial advice
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

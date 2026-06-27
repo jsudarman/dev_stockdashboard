@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>Sector Performance & Signals</h1>
+    <p class="subtitle">Weekly analysis of S&P 500 sector ETFs — RSI, MACD, trend, momentum, volume</p>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btn-prev">&#9664; Prev Week</button>
+    <span class="week-label" id="week-label">Loading…</span>
+    <button class="btn btn-accent" id="btn-refresh">&#8635; Refresh</button>
+  </div>
+</div>
+
+<!-- Signal legend -->
+<div class="legend">
+  <span class="leg strong-buy">&#9679; Strong Buy</span>
+  <span class="leg buy">&#9679; Buy</span>
+  <span class="leg hold">&#9679; Hold</span>
+  <span class="leg sell">&#9679; Sell</span>
+  <span class="leg strong-sell">&#9679; Strong Sell</span>
+</div>
+
+<!-- Mock badge -->
+<div id="mock-badge" class="mock-badge" style="display:none">&#9888; Simulated Data</div>
+
+<!-- Loading -->
+<div id="loader" class="loader">
+  <div class="spinner"></div>
+  <p>Analyzing sectors…</p>
+</div>
+
+<!-- Sector heat strip -->
+<div class="heat-strip" id="heat-strip"></div>
+
+<!-- Cards grid -->
+<div class="grid" id="grid"></div>
+
+<!-- Detail panel (slides in on card click) -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" id="detail-close">&times;</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ETF_META = {{ etfs | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}
