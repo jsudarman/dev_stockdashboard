@@ -42,20 +42,20 @@ function heatColor(pct) {
 }
 
 // Fetch
-async function fetchSignals(week, refresh = false) {
+async function fetchSignals(endDate, refresh = false) {
   loader.classList.remove("hidden");
   grid.innerHTML = "";
   heatStrip.innerHTML = "";
 
   const params = new URLSearchParams();
-  if (week) params.set("week", week);
+  if (endDate) params.set("end_date", endDate);
   if (refresh) params.set("refresh", "true");
 
   const res = await fetch("/api/signals?" + params);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const json = await res.json();
 
-  currentWeek = json.week;
+  currentWeek = json.end_date;
   data = json.signals;
 
   weekLabel.textContent = json.week_label;
@@ -107,7 +107,7 @@ function renderCard(d) {
     <div class="card-name">${d.name || d.symbol}</div>
     <div class="card-row">
       <span class="card-price">$${fmt(d.price)}</span>
-      <span class="card-change ${pct >= 0 ? "pos" : "neg"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "% wk" : "—"}</span>
+      <span class="card-change ${pct >= 0 ? "pos" : "neg"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "% 5d" : "—"}</span>
     </div>
     <div class="score-bar">
       <div class="score-track"><div class="score-fill" style="width:${scoreWidth(sig.score || 0)};background:${scoreColor(sig.score || 0)}"></div></div>
@@ -137,9 +137,9 @@ function showDetail(sym) {
 
     <div class="dt-section">Price</div>
     <div class="dt-row"><span class="label">Current</span><span class="val">$${fmt(d.price)}</span></div>
-    <div class="dt-row"><span class="label">Weekly Change</span><span class="val" style="color:${pct >= 0 ? "var(--green)" : "var(--red)"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "%" : "—"}</span></div>
+    <div class="dt-row"><span class="label">5-Day Change</span><span class="val" style="color:${pct >= 0 ? "var(--green)" : "var(--red)"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "%" : "—"}</span></div>
 
-    <div class="dt-section">Previous Week OHLCV</div>
+    <div class="dt-section">Last 5 Trading Days OHLCV</div>
     <div class="dt-row"><span class="label">Open</span><span class="val">$${fmt(w.open)}</span></div>
     <div class="dt-row"><span class="label">High</span><span class="val">$${fmt(w.high)}</span></div>
     <div class="dt-row"><span class="label">Low</span><span class="val">$${fmt(w.low)}</span></div>
@@ -185,7 +185,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") overlay.clas
 document.getElementById("btn-prev").onclick = () => {
   if (currentWeek) {
     const d = new Date(currentWeek);
-    d.setDate(d.getDate() - 7);
+    d.setDate(d.getDate() - 5);
     fetchSignals(d.toISOString().slice(0, 10));
   }
 };

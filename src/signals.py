@@ -41,16 +41,16 @@ def _trend_signal(price: float, sma20: float | None, sma50: float | None) -> tup
 
 def _weekly_momentum(weekly_change: float | None) -> tuple[int, str]:
     if weekly_change is None:
-        return 0, "Weekly data unavailable"
+        return 0, "5-day data unavailable"
     if weekly_change > 3:
-        return 2, f"Strong weekly gain +{weekly_change:.2f}%"
+        return 2, f"Strong 5-day gain +{weekly_change:.2f}%"
     if weekly_change > 1:
-        return 1, f"Weekly gain +{weekly_change:.2f}%"
+        return 1, f"5-day gain +{weekly_change:.2f}%"
     if weekly_change < -3:
-        return -2, f"Sharp weekly drop {weekly_change:.2f}%"
+        return -2, f"Sharp 5-day drop {weekly_change:.2f}%"
     if weekly_change < -1:
-        return -1, f"Weekly decline {weekly_change:.2f}%"
-    return 0, f"Flat week ({weekly_change:+.2f}%)"
+        return -1, f"5-day decline {weekly_change:.2f}%"
+    return 0, f"Flat 5 days ({weekly_change:+.2f}%)"
 
 
 def _volume_signal(volume: int | None, avg_vol: int | None, weekly_change: float | None) -> tuple[int, str]:
@@ -106,7 +106,7 @@ def calculate_signal(indicators: dict, weekly: dict | None) -> dict:
         {"name": "RSI (14)", "signal": s_rsi, "reason": r_rsi},
         {"name": "MACD", "signal": s_macd, "reason": r_macd},
         {"name": "Trend (SMA 20/50)", "signal": s_trend, "reason": r_trend},
-        {"name": "Weekly Momentum", "signal": s_mom, "reason": r_mom},
+        {"name": "5-Day Momentum", "signal": s_mom, "reason": r_mom},
         {"name": "Volume", "signal": s_vol, "reason": r_vol},
     ]
 

@@ -25,21 +25,24 @@ def sma(close: pd.Series, period: int) -> pd.Series:
     return close.rolling(window=period).mean()
 
 
-def weekly_ohlcv(df: pd.DataFrame, target_week_start: str) -> dict | None:
-    """Extract OHLCV for a specific week (Mon-Fri)."""
-    start = pd.Timestamp(target_week_start)
-    end = start + pd.Timedelta(days=4)
-    week = df[(df.index >= start) & (df.index <= end)]
-    if week.empty:
+def last_n_trading_days_ohlcv(df: pd.DataFrame, end_date: str, n: int = 5) -> dict | None:
+    """Extract OHLCV for the last N trading days up to end_date."""
+    end = pd.Timestamp(end_date)
+    subset = df[df.index <= end]
+    if len(subset) < n:
+        period = subset
+    else:
+        period = subset.iloc[-n:]
+    if period.empty:
         return None
     return {
-        "open": float(week["Open"].iloc[0]),
-        "high": float(week["High"].max()),
-        "low": float(week["Low"].min()),
-        "close": float(week["Close"].iloc[-1]),
-        "volume": int(week["Volume"].sum()),
-        "avg_daily_volume": int(week["Volume"].mean()),
-        "trading_days": len(week),
+        "open": float(period["Open"].iloc[0]),
+        "high": float(period["High"].max()),
+        "low": float(period["Low"].min()),
+        "close": float(period["Close"].iloc[-1]),
+        "volume": int(period["Volume"].sum()),
+        "avg_daily_volume": int(period["Volume"].mean()),
+        "trading_days": len(period),
     }
 
 
