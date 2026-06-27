@@ -101,6 +101,7 @@ function renderEtfSection(etf) {
         <span class="card-sym">${stock.symbol}</span>
         <span class="card-badge badge-${sig.css_class || "hold"}">${sig.label || "N/A"}</span>
       </div>
+      <div class="card-name">${stock.company_name || stock.symbol}</div>
       <div class="card-row">
         <span class="card-price">$${fmt(stock.price)}</span>
         <span class="card-change ${pct >= 0 ? "pos" : "neg"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "% 5d" : "—"}</span>
@@ -119,15 +120,28 @@ function renderEtfSection(etf) {
   sections.appendChild(section);
 }
 
+function peColor(pe, avgPe) {
+  if (pe == null || avgPe == null) return "var(--text)";
+  if (pe < avgPe * 0.8) return "var(--green)";
+  if (pe > avgPe * 1.2) return "var(--red)";
+  return "var(--yellow)";
+}
+
 function showStockDetail(stock, etfSym) {
   const sig = stock.signal || {};
   const w = stock.weekly || {};
   const pct = sig.weekly_change_pct;
+  const etfData = allData[etfSym] || {};
+  const peers = etfData.peer_pe || [];
+
+  const peersWithPe = peers.filter(p => p.pe_ratio != null);
+  const avgPe = peersWithPe.length ? peersWithPe.reduce((s, p) => s + p.pe_ratio, 0) / peersWithPe.length : null;
 
   let html = `
     <div class="dt-header">
       <div class="dt-sym">${stock.symbol}</div>
-      <div class="dt-sector">Holding of ${etfSym}</div>
+      <div class="dt-name">${stock.company_name || stock.symbol}</div>
+      <div class="dt-sector">${stock.industry || ""} &middot; Holding of ${etfSym}</div>
       <div class="dt-badge"><span class="card-badge badge-${sig.css_class}">${sig.label} (${sig.score})</span></div>
     </div>
 
@@ -135,6 +149,32 @@ function showStockDetail(stock, etfSym) {
     <div class="dt-row"><span class="label">Current</span><span class="val">$${fmt(stock.price)}</span></div>
     <div class="dt-row"><span class="label">5-Day Change</span><span class="val" style="color:${pct >= 0 ? "var(--green)" : "var(--red)"}">${pct != null ? (pct >= 0 ? "+" : "") + fmt(pct) + "%" : "—"}</span></div>
 
+    <div class="dt-section">Valuation</div>
+    <div class="dt-row"><span class="label">P/E Ratio</span><span class="val" style="color:${peColor(stock.pe_ratio, avgPe)}">${stock.pe_ratio != null ? fmt(stock.pe_ratio, 1) : "—"}</span></div>
+    <div class="dt-row"><span class="label">Peer Avg P/E (${etfSym})</span><span class="val">${avgPe != null ? fmt(avgPe, 1) : "—"}</span></div>
+  `;
+
+  if (stock.pe_ratio != null && avgPe != null) {
+    const diff = stock.pe_ratio - avgPe;
+    const pctDiff = (diff / avgPe * 100);
+    const label = diff > 0 ? "above" : "below";
+    const color = diff > 0 ? "var(--red)" : "var(--green)";
+    html += `<div class="dt-row"><span class="label">vs Peers</span><span class="val" style="color:${color}">${Math.abs(pctDiff).toFixed(1)}% ${label} avg</span></div>`;
+  }
+
+  html += `
+    <div class="dt-section">Peer P/E Comparison (${etfSym} Holdings)</div>
+    <table class="pe-table">
+      <tr><th>Ticker</th><th>Company</th><th>P/E</th></tr>
+  `;
+  peers.sort((a, b) => (a.pe_ratio || 999) - (b.pe_ratio || 999)).forEach(p => {
+    const isMe = p.symbol === stock.symbol;
+    const rowCls = isMe ? ' class="pe-highlight"' : '';
+    html += `<tr${rowCls}><td>${p.symbol}</td><td>${p.company_name}</td><td>${p.pe_ratio != null ? fmt(p.pe_ratio, 1) : "—"}</td></tr>`;
+  });
+  html += `</table>`;
+
+  html += `
     <div class="dt-section">Last 5 Trading Days OHLCV</div>
     <div class="dt-row"><span class="label">Open</span><span class="val">$${fmt(w.open)}</span></div>
     <div class="dt-row"><span class="label">High</span><span class="val">$${fmt(w.high)}</span></div>

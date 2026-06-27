@@ -112,6 +112,14 @@ a{color:var(--accent);text-decoration:none}
 .dt-ind-name{font-size:.82rem;font-weight:600;margin-bottom:.15rem}
 .dt-ind-reason{font-size:.78rem;color:var(--muted);line-height:1.4}
 
+/* P/E comparison table */
+.pe-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:.4rem 0}
+.pe-table th{text-align:left;color:var(--dim);font-weight:600;padding:.3rem .4rem;border-bottom:1px solid var(--border)}
+.pe-table td{padding:.3rem .4rem;border-bottom:1px solid #ffffff08}
+.pe-table td:last-child{text-align:right;font-weight:600}
+.pe-table .pe-highlight{background:var(--bg3);border-radius:4px}
+.pe-table .pe-highlight td{color:var(--accent);font-weight:700}
+
 /* Top Stocks sections */
 .ts-section{margin-bottom:2rem}
 .ts-header{display:flex;align-items:center;gap:.75rem;padding:.6rem .8rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.75rem;border-left:4px solid transparent}

@@ -8,6 +8,7 @@ from src.data_provider import DataProvider
 from src.indicators import compute_indicators, last_n_trading_days_ohlcv
 from src.signals import calculate_signal
 from src.holdings import ETF_HOLDINGS
+from src.stock_info import get_stock_info
 from src import database as db
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -61,9 +62,11 @@ def _analyze_stock(symbol: str, end_date: str, force: bool = False) -> dict:
     indicators = compute_indicators(df)
     period_data = last_n_trading_days_ohlcv(df, end_date, n=5)
     signal = calculate_signal(indicators, period_data)
+    info = get_stock_info(symbol, provider.is_live())
 
     result = {
         "symbol": symbol,
+        **info,
         **indicators,
         "weekly": period_data,
         "signal": signal,
@@ -127,6 +130,12 @@ def api_top_stocks():
 
     stocks.sort(key=lambda s: s.get("signal", {}).get("weekly_change_pct") or -999, reverse=True)
 
+    peer_pe = [
+        {"symbol": s["symbol"], "company_name": s.get("company_name", s["symbol"]),
+         "industry": s.get("industry", ""), "pe_ratio": s.get("pe_ratio")}
+        for s in stocks if s.get("pe_ratio") is not None
+    ]
+
     return jsonify({
         "end_date": end,
         "week_label": _period_label(end),
@@ -135,6 +144,7 @@ def api_top_stocks():
         "etf_sector": SECTOR_ETFS.get(etf, {}).get("sector", ""),
         "etf_color": SECTOR_ETFS.get(etf, {}).get("color", "#58a6ff"),
         "top_stocks": stocks[:5],
+        "peer_pe": peer_pe,
         "is_mock": not provider.is_live(),
     })
 
