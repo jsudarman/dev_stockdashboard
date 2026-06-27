@@ -17,6 +17,13 @@ SECTOR_ETFS = {
     "EWT": {"name": "iShares MSCI Taiwan ETF", "sector": "Taiwan", "color": "#2ea043"},
     "EWJ": {"name": "iShares MSCI Japan ETF", "sector": "Japan", "color": "#bc002d"},
     "NASA": {"name": "Procure Space ETF", "sector": "Space & Aerospace", "color": "#1f6feb"},
+    "PEJ": {"name": "Invesco Leisure and Entertainment ETF", "sector": "Leisure & Entertainment", "color": "#f778ba"},
+    "CIBR": {"name": "First Trust Nasdaq Cybersecurity ETF", "sector": "Cybersecurity", "color": "#56d364"},
+    "GRID": {"name": "First Trust NASDAQ Clean Edge Smart Grid Infra ETF", "sector": "Clean Energy Grid", "color": "#39d353"},
+    "QTUM": {"name": "Defiance Quantum ETF", "sector": "Quantum Computing", "color": "#8957e5"},
+    "URA": {"name": "Global X Uranium ETF", "sector": "Uranium & Nuclear", "color": "#f0e68c"},
+    "ITA": {"name": "iShares U.S. Aerospace & Defense ETF", "sector": "Aerospace & Defense", "color": "#6e7681"},
+    "THRO": {"name": "iShares US Thematic Rotation Active ETF", "sector": "Thematic Rotation", "color": "#db61a2"},
 }
 
 ETF_SYMBOLS = list(SECTOR_ETFS.keys())
