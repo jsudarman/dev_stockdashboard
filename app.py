@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 from src.config import SECTOR_ETFS, ETF_SYMBOLS
 from src.data_provider import DataProvider
-from src.indicators import compute_indicators, weekly_ohlcv
+from src.indicators import compute_indicators, last_n_trading_days_ohlcv
 from src.signals import calculate_signal
 from src import database as db
 
@@ -14,40 +14,37 @@ app = Flask(__name__)
 provider = DataProvider()
 
 
-def _previous_week_monday(ref_date: str | None = None) -> str:
+def _end_date(ref_date: str | None = None) -> str:
     d = datetime.strptime(ref_date, "%Y-%m-%d") if ref_date else datetime.now()
-    d -= timedelta(days=d.weekday())  # this Monday
-    d -= timedelta(weeks=1)           # last Monday
     return d.strftime("%Y-%m-%d")
 
 
-def _week_label(monday: str) -> str:
-    start = datetime.strptime(monday, "%Y-%m-%d")
-    end = start + timedelta(days=4)
-    return f"{start.strftime('%b %d')} – {end.strftime('%b %d, %Y')}"
+def _period_label(end_date: str) -> str:
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    start = end - timedelta(days=6)
+    return f"5 trading days ending {end.strftime('%b %d, %Y')}"
 
 
-def _analyze(symbol: str, week_monday: str, force: bool = False) -> dict:
+def _analyze(symbol: str, end_date: str, force: bool = False) -> dict:
     if not force:
-        cached = db.get_signal(week_monday, symbol)
+        cached = db.get_signal(end_date, symbol)
         if cached:
             return cached
 
-    friday = (datetime.strptime(week_monday, "%Y-%m-%d") + timedelta(days=4)).strftime("%Y-%m-%d")
-    df = provider.fetch_daily(symbol, friday)
+    df = provider.fetch_daily(symbol, end_date)
     indicators = compute_indicators(df)
-    weekly = weekly_ohlcv(df, week_monday)
-    signal = calculate_signal(indicators, weekly)
+    period_data = last_n_trading_days_ohlcv(df, end_date, n=5)
+    signal = calculate_signal(indicators, period_data)
 
     result = {
         "symbol": symbol,
         **SECTOR_ETFS[symbol],
         **indicators,
-        "weekly": weekly,
+        "weekly": period_data,
         "signal": signal,
     }
 
-    db.save_signal(week_monday, symbol, result)
+    db.save_signal(end_date, symbol, result)
     return result
 
 
@@ -58,23 +55,20 @@ def index():
 
 @app.route("/api/signals")
 def api_signals():
-    week = request.args.get("week") or _previous_week_monday()
+    end = request.args.get("end_date") or _end_date()
     force = request.args.get("refresh", "false").lower() == "true"
 
     results = {}
     for sym in ETF_SYMBOLS:
         try:
-            results[sym] = _analyze(sym, week, force)
+            results[sym] = _analyze(sym, end, force)
         except Exception as e:
             logging.error(f"Error analyzing {sym}: {e}")
             results[sym] = {"symbol": sym, "error": str(e), **SECTOR_ETFS[sym]}
 
-    prev_week = _previous_week_monday(week)
-
     return jsonify({
-        "week": week,
-        "week_label": _week_label(week),
-        "prev_week": prev_week,
+        "end_date": end,
+        "week_label": _period_label(end),
         "signals": results,
         "is_mock": not provider.is_live(),
     })
