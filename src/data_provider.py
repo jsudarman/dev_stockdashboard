@@ -67,6 +67,21 @@ class DataProvider:
             logger.warning("Yahoo Finance unreachable — using simulated data")
         return self._live
 
+    def fetch_yearly(self, symbol: str) -> pd.DataFrame:
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        if not self.is_live():
+            return _generate_mock_daily(symbol, end_date, n_days=365)
+        try:
+            import yfinance as yf
+            df = yf.Ticker(symbol).history(period="13mo", interval="1d")
+            if df.empty:
+                raise ValueError(f"No data for {symbol}")
+            df.index = df.index.tz_localize(None) if df.index.tzinfo else df.index
+            return df
+        except Exception as e:
+            logger.warning(f"Live yearly fetch failed for {symbol}: {e}")
+            return _generate_mock_daily(symbol, end_date, n_days=365)
+
     def fetch_daily(self, symbol: str, end_date: str) -> pd.DataFrame:
         if not self.is_live():
             return _generate_mock_daily(symbol, end_date)

@@ -46,6 +46,43 @@ def last_n_trading_days_ohlcv(df: pd.DataFrame, end_date: str, n: int = 5) -> di
     }
 
 
+def compute_performance(df: pd.DataFrame) -> dict:
+    """Compute today's change and YTD performance from daily data."""
+    close = df["Close"]
+    volume = df["Volume"]
+
+    last = close.iloc[-1]
+    last_date = close.index[-1]
+    prev = close.iloc[-2] if len(close) >= 2 else last
+    today_change_pct = (last - prev) / prev * 100
+
+    current_year = last_date.year
+    ytd_data = close[close.index.year == current_year]
+    if not ytd_data.empty:
+        ytd_start_price = float(ytd_data.iloc[0])
+        ytd_change_pct = (float(last) - ytd_start_price) / ytd_start_price * 100
+        ytd_high = float(close[close.index.year == current_year].max())
+        ytd_low = float(close[close.index.year == current_year].min())
+    else:
+        ytd_start_price = ytd_change_pct = ytd_high = ytd_low = None
+
+    return {
+        "price": round(float(last), 2),
+        "prev_close": round(float(prev), 2),
+        "last_date": last_date.strftime("%Y-%m-%d"),
+        "today_change_pct": round(float(today_change_pct), 2),
+        "today_open": round(float(df["Open"].iloc[-1]), 2),
+        "today_high": round(float(df["High"].iloc[-1]), 2),
+        "today_low": round(float(df["Low"].iloc[-1]), 2),
+        "today_volume": int(volume.iloc[-1]),
+        "ytd_start_price": round(ytd_start_price, 2) if ytd_start_price else None,
+        "ytd_change_pct": round(float(ytd_change_pct), 2) if ytd_change_pct is not None else None,
+        "ytd_high": round(ytd_high, 2) if ytd_high else None,
+        "ytd_low": round(ytd_low, 2) if ytd_low else None,
+        "ytd_start_year": current_year,
+    }
+
+
 def compute_indicators(df: pd.DataFrame) -> dict:
     """Compute all indicators from daily data. Returns latest values."""
     close = df["Close"]
