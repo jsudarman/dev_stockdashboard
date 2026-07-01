@@ -61,10 +61,10 @@ async function fetchSignals(endDate, refresh = false) {
   weekLabel.textContent = json.week_label;
   mockBadge.style.display = json.is_mock ? "inline-flex" : "none";
 
-  // Sort by signal score descending
+  // Sort by 5-day performance descending
   const sorted = Object.values(data)
     .filter(d => !d.error)
-    .sort((a, b) => (b.signal?.score || 0) - (a.signal?.score || 0));
+    .sort((a, b) => (b.signal?.weekly_change_pct ?? -999) - (a.signal?.weekly_change_pct ?? -999));
 
   renderHeatStrip(sorted);
   sorted.forEach(renderCard);
