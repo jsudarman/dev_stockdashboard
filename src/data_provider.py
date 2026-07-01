@@ -13,6 +13,7 @@ BASE_PRICES = {
     "EWT": 55.0, "EWJ": 72.0, "NASA": 28.0,
     "PEJ": 48.0, "CIBR": 58.0, "GRID": 105.0, "QTUM": 75.0,
     "URA": 30.0, "ITA": 150.0, "THRO": 28.0,
+    "IGV": 95.0, "CHPY": 22.0,
 }
 
 
