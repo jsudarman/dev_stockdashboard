@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}ETF Performance — Today & YTD{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>ETF Price Performance</h1>
+    <p class="subtitle">Today's price change and year-to-date performance for all tracked ETFs</p>
+  </div>
+  <div class="controls">
+    <div class="sort-tabs">
+      <button class="sort-tab active" id="sort-today">Today</button>
+      <button class="sort-tab" id="sort-ytd">YTD</button>
+    </div>
+    <span class="week-label" id="date-label">Loading…</span>
+    <button class="btn btn-accent" id="btn-refresh">&#8635; Refresh</button>
+  </div>
+</div>
+
+<div id="mock-badge" class="mock-badge" style="display:none">&#9888; Simulated Data</div>
+
+<div id="loader" class="loader">
+  <div class="spinner"></div>
+  <p>Fetching performance data…</p>
+</div>
+
+<div class="heat-strip" id="heat-strip"></div>
+<div class="grid" id="grid"></div>
+
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" id="detail-close">&times;</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ETF_META = {{ etfs | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/performance.js') }}"></script>
+{% endblock %}

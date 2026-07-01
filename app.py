@@ -5,7 +5,7 @@ from flask import Flask, render_template, jsonify, request
 
 from src.config import SECTOR_ETFS, ETF_SYMBOLS
 from src.data_provider import DataProvider
-from src.indicators import compute_indicators, last_n_trading_days_ohlcv
+from src.indicators import compute_indicators, last_n_trading_days_ohlcv, compute_performance
 from src.signals import calculate_signal
 from src.holdings import ETF_HOLDINGS
 from src.stock_info import get_stock_info
@@ -86,6 +86,11 @@ def top_stocks():
     return render_template("top_stocks.html", etfs=SECTOR_ETFS)
 
 
+@app.route("/performance")
+def performance():
+    return render_template("performance.html", etfs=SECTOR_ETFS)
+
+
 @app.route("/api/signals")
 def api_signals():
     end = request.args.get("end_date") or _end_date()
@@ -145,6 +150,41 @@ def api_top_stocks():
         "etf_color": SECTOR_ETFS.get(etf, {}).get("color", "#58a6ff"),
         "top_stocks": stocks[:5],
         "peer_pe": peer_pe,
+        "is_mock": not provider.is_live(),
+    })
+
+
+@app.route("/api/performance")
+def api_performance():
+    force = request.args.get("refresh", "false").lower() == "true"
+    today = datetime.now().strftime("%Y-%m-%d")
+    cache_key_prefix = "perf"
+
+    results = {}
+    for sym in ETF_SYMBOLS:
+        cache_key = f"{cache_key_prefix}_{sym}"
+        if not force:
+            cached = db.get_signal(today, cache_key)
+            if cached:
+                results[sym] = cached
+                continue
+        try:
+            df = provider.fetch_yearly(sym)
+            perf = compute_performance(df)
+            result = {
+                "symbol": sym,
+                **SECTOR_ETFS[sym],
+                **perf,
+            }
+            db.save_signal(today, cache_key, result)
+            results[sym] = result
+        except Exception as e:
+            logging.error(f"Error fetching performance for {sym}: {e}")
+            results[sym] = {"symbol": sym, "error": str(e), **SECTOR_ETFS[sym]}
+
+    return jsonify({
+        "date": today,
+        "signals": results,
         "is_mock": not provider.is_live(),
     })
 
