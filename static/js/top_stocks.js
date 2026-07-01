@@ -36,7 +36,6 @@ async function fetchTopStocks(endDate, refresh = false) {
   allData = {};
 
   const etfOrder = Object.keys(ETF_META);
-  let headerSet = false;
 
   for (const etfSym of etfOrder) {
     const params = new URLSearchParams();
@@ -49,23 +48,29 @@ async function fetchTopStocks(endDate, refresh = false) {
       if (!res.ok) continue;
       const json = await res.json();
 
-      if (!headerSet) {
+      if (!currentEndDate) {
         currentEndDate = json.end_date;
         weekLabel.textContent = json.week_label;
         mockBadge.style.display = json.is_mock ? "inline-flex" : "none";
-        loader.classList.add("hidden");
-        headerSet = true;
       }
 
       if (json.top_stocks && json.top_stocks.length) {
         allData[etfSym] = json;
-        renderEtfSection(json);
       }
     } catch (e) {
       console.error(`Failed to load ${etfSym}:`, e);
     }
   }
 
+  // Sort ETF sections by best (top #1) stock's 5-day performance, best first
+  const sorted = Object.values(allData).sort((a, b) => {
+    const aPct = a.top_stocks[0]?.signal?.weekly_change_pct ?? -999;
+    const bPct = b.top_stocks[0]?.signal?.weekly_change_pct ?? -999;
+    return bPct - aPct;
+  });
+
+  sections.innerHTML = "";
+  sorted.forEach(etf => renderEtfSection(etf));
   loader.classList.add("hidden");
 }
 

@@ -225,6 +225,21 @@ STOCK_INFO = {
     "HII": {"name": "Huntington Ingalls", "industry": "Shipbuilding"},
     "HEI": {"name": "HEICO Corp.", "industry": "Aerospace Parts"},
     "TXT": {"name": "Textron Inc.", "industry": "Aerospace & Defense"},
+    "INTU": {"name": "Intuit Inc.", "industry": "Software"},
+    "ADSK": {"name": "Autodesk Inc.", "industry": "Software"},
+    "SNOW": {"name": "Snowflake Inc.", "industry": "Cloud Software"},
+    "DDOG": {"name": "Datadog Inc.", "industry": "Cloud Monitoring"},
+    "NOW": {"name": "ServiceNow Inc.", "industry": "Software"},
+    "BABA": {"name": "Alibaba Group", "industry": "E-Commerce"},
+    "JD": {"name": "JD.com Inc.", "industry": "E-Commerce"},
+    "PDD": {"name": "PDD Holdings", "industry": "E-Commerce"},
+    "BIDU": {"name": "Baidu Inc.", "industry": "Internet Services"},
+    "TCEHY": {"name": "Tencent Holdings", "industry": "Internet & Gaming"},
+    "NTES": {"name": "NetEase Inc.", "industry": "Internet & Gaming"},
+    "VIPS": {"name": "Vipshop Holdings", "industry": "E-Commerce"},
+    "QFIN": {"name": "360 DigiTech", "industry": "Fintech"},
+    "FINV": {"name": "FinVolution Group", "industry": "Fintech"},
+    "LX": {"name": "LexinFintech Holdings", "industry": "Fintech"},
 }
 
 
