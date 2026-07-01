@@ -25,7 +25,7 @@ SECTOR_ETFS = {
     "ITA": {"name": "iShares U.S. Aerospace & Defense ETF", "sector": "Aerospace & Defense", "color": "#6e7681"},
     "THRO": {"name": "iShares US Thematic Rotation Active ETF", "sector": "Thematic Rotation", "color": "#db61a2"},
     "IGV": {"name": "iShares Expanded Tech-Software Sector ETF", "sector": "Software", "color": "#4ac8e8"},
-    "CHPY": {"name": "China Pay & Technology ETF", "sector": "China Fintech", "color": "#e84646"},
+    "CHPY": {"name": "YieldMax Semiconductor Portfolio Option Income ETF", "sector": "Semiconductor Income", "color": "#e84646"},
 }
 
 ETF_SYMBOLS = list(SECTOR_ETFS.keys())

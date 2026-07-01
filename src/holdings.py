@@ -25,5 +25,5 @@ ETF_HOLDINGS = {
     "ITA": ["RTX", "LMT", "BA", "NOC", "GD", "TDG", "LHX", "HII", "HEI", "TXT"],
     "THRO": ["AAPL", "MSFT", "AMZN", "GOOGL", "META", "NVDA", "TSLA", "JPM", "V", "UNH"],
     "IGV": ["MSFT", "CRM", "ORCL", "ACN", "INTU", "ADSK", "PANW", "SNOW", "DDOG", "NOW"],
-    "CHPY": ["BABA", "JD", "PDD", "BIDU", "TCEHY", "NTES", "VIPS", "QFIN", "FINV", "LX"],
+    "CHPY": ["NVDA", "AMD", "AVGO", "INTC", "QCOM", "TXN", "MU", "AMAT", "LRCX", "ASML"],
 }
